@@ -11,28 +11,55 @@
 </head>
 <body>
   <h1>Hello, socket.io!</h1>
-  <div id="msg" data-task_id="4">
+  <div id="msg">
     <div>Log here:</div>
   </div>
+  <button id="run" data-task_id="4">Run task</button>
 
   <script>
-    const socket = io();
 
     const $logContainer = $('#msg');
 
-    socket
-      .on('connect', () => {
-        console.log('connected to socket', socket)
-      })
-      .on('log', log => {
-      const logObject = JSON.parse(log);
+    const $runBtn = $('#run');
 
-      if (parseInt(logObject.task_id,10) === 4) {
-        $logContainer.append(`<div>${logObject.log_string}</div>`)
+    $runBtn.on('click', function (event) {
+      event.stopPropagation();
+
+      const taskId = $runBtn.attr('data-task_id');
+
+      if (taskId) {
+
+        $runBtn.hide();
+
+        const socket = io();
+
+        socket
+          .on('connect', () => {
+            console.log('connected to socket', socket)
+            socket.emit('runTask', taskId);
+          })
+
+          .on('log', log => {
+            const logObject = JSON.parse(log);
+
+            if (parseInt(logObject.task_id,10) === 4) {
+              $logContainer.append(`<div>${logObject.log_string}</div>`)
+            }
+
+            console.log(logObject)
+          })
+
+          .on('stop', id => {
+            if (taskId === id) {
+              $logContainer.append(`<div>Задание завершено</div>`);
+              socket.disconnect();
+            }
+          })
+
       }
 
-      console.log(logObject)
-    })
+    });
+
 
   </script>
 

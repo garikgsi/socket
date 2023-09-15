@@ -7,13 +7,6 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
-// app.get('/', (req, res) => {
-//   res.send('<h1>Hello world</h1>');
-// });
-
-// server.listen(3000, () => {
-//   console.log('server running at http://localhost:3000');
-// });
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
@@ -23,6 +16,20 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
+
+  socket.on('runTask', (taskId) => {
+    console.log('task running', taskId);
+    let logInterval = setInterval(async () => {
+      io.emit('log', JSON.stringify(await logObject()));
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(logInterval);
+      io.emit('stop', taskId);
+    }, 10000)
+
+  })
+
 });
 
 const logObject = async () => {
@@ -36,9 +43,6 @@ const logObject = async () => {
 }
 
 
-setInterval(async () => {
-  io.emit('log', JSON.stringify(await logObject()));
-}, 1000);
 
 
 server.listen(3000, () => {
