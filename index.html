@@ -20,7 +20,11 @@
 
     const $logContainer = $('#msg');
 
-    socket.on('log', log => {
+    socket
+      .on('connect', () => {
+        console.log('connected to socket', socket)
+      })
+      .on('log', log => {
       const logObject = JSON.parse(log);
 
       if (parseInt(logObject.task_id,10) === 4) {
@@ -30,7 +34,6 @@
       console.log(logObject)
     })
 
-    console.log('connection to socket', socket);
   </script>
 
 </body>
