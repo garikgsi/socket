@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Hello, socket.io!</h1>
+  <div id="msg" data-task_id="4">
+    <div>Log here:</div>
+  </div>
+
+  <script>
+    const socket = io();
+
+    const $logContainer = $('#msg');
+
+    socket.on('log', log => {
+      const logObject = JSON.parse(log);
+
+      if (parseInt(logObject.task_id,10) === 4) {
+        $logContainer.append(`<div>${logObject.log_string}</div>`)
+      }
+
+      console.log(logObject)
+    })
+
+    console.log('connection to socket', socket);
+  </script>
+
+</body>
+</html>
