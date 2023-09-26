@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<h1>Hello, socket.io!</h1>
+<div id="msg">
+    <div>Log here:</div>
+</div>
+<button id="run" data-task_id="4">Run task</button>
+
+<script>
+
+  const $logContainer = $('#msg');
+
+  const $runBtn = $('#run');
+
+  $runBtn.on('click', function(event) {
+    event.stopPropagation();
+
+    const taskId = $runBtn.attr('data-task_id');
+
+    if ( taskId ) {
+
+      $runBtn.hide();
+
+      const socket = io('http://127.0.0.1:3001', {});
+
+      socket
+        .on('connect', () => {
+          console.log('connected to socket', socket);
+          socket.emit('runTask', taskId);
+        })
+
+        .on('log', log => {
+          const logObject = JSON.parse(log);
+
+          if ( parseInt(logObject.task_id, 10) === 4 ) {
+            $logContainer.append(`<div>${ logObject.log_string }</div>`);
+          }
+
+          console.log(logObject);
+        })
+
+        .on('stop', id => {
+          if ( taskId === id ) {
+            $logContainer.append(`<div>Задание завершено</div>`);
+            socket.disconnect();
+          }
+        });
+
+    }
+
+  });
+
+
+</script>
+
+</body>
+</html>
